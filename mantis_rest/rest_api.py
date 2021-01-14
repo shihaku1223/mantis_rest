@@ -13,6 +13,7 @@ get_issue_file = 'api/rest/issues/:issue_id/files/:file_id'
 get_all_issues = 'api/rest/issues?page_size=:page_size&page=:page'
 get_issues_project = 'api/rest/issues?project_id=:project_id'
 create_issue = 'api/rest/issues/'
+update_issue = 'api/rest/issues/:issue_id'
 
 # project API
 get_all_projects = 'api/rest/projects'
