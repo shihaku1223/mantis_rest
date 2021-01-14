@@ -1,0 +1,33 @@
+stages:
+  - run
+  
+run:
+  image: ubuntu-runner
+  stage: run
+  tags:
+    - linux
+  script:
+    - |
+      cat >~/.pypirc<<EOF
+      [distutils]
+      index-servers =
+        nexus
+        ipf3
+
+      [nexus]
+      repository = http://nexus3-nexus.ape.hon.olympus.co.jp/nexus_01/repository/ipf3-pypi-hosted/
+      username = $user
+      password = $pass
+
+      [ipf3]
+      repository = http://10.155.47.34/ipf3-offshore/pypi/
+      username = integ
+      password = integ0private0node
+      EOF
+    - python3 setup.py sdist bdist_wheel
+    - python3 -m twine upload -r nexus dist/*
+    - python3 -m twine upload -r ipf3 dist/*
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+    paths:
+      - dist/
