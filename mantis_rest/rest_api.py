@@ -16,6 +16,8 @@ create_issue = 'api/rest/issues/'
 update_issue = 'api/rest/issues/:issue_id'
 add_attachments = 'api/rest/issues/:issue_id/files'
 
+create_issue_note = 'api/rest/issues/:issue_id/notes'
+
 # project API
 get_all_projects = 'api/rest/projects'
 

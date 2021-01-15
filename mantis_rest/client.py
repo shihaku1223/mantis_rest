@@ -57,10 +57,30 @@ class Client:
             headers = {**self.headers, **headers}
 
         r = requests.request(method, url, headers=headers, data=data)
-        if r.status_code != requests.codes.ok:
-            raise Exception('request failed %s' % r.status_code)
+        r.raise_for_status()
 
         return r.text
+
+    def create_note(self, issue_id, text, file_paths=None):
+
+        data = {
+            "text": text,
+        }
+
+        if file_paths is not None:
+            data["files"] = []
+        for path in file_paths:
+            p = Path(path)
+            data["files"].append({
+              "name": p.name,
+              "content": file2base64(path)
+            })
+
+        note = create_obj(self.create_issue_note)(
+            { ':issue_id': str(issue_id) },
+            data=data)
+
+        return note
 
     def upload_attachments(self, issue_id, file_paths):
         files = []
@@ -74,6 +94,7 @@ class Client:
 
         data = { "files": files }
 
+        # No object will be returned
         create_obj(self.add_attachments)(
             { ':issue_id': str(issue_id) },
             data=data)
@@ -174,4 +195,6 @@ if __name__ == '__main__':
     }, data=_data)
     print(updated_issue_obj.issues[0].summary)
 
-    client.upload_attachments(48361, ['log2'])
+    #client.upload_attachments(48361, ['log2'])
+    note = client.create_note(48361, 'test', ['log2'])
+    print(note.note.id)
