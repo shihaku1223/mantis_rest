@@ -99,6 +99,21 @@ class Client:
             { ':issue_id': str(issue_id) },
             data=data)
 
+    def download_attachments(self, issue_id, dest='.'):
+
+        Path('{}'.format(dest)).mkdir(parents=True, exist_ok=True)
+
+        issue_obj = get_obj(client.get_issue)({ ':issue_id': '48361' })
+        for attachment in issue_obj.issues[0].attachments:
+            print('download ', attachment.id, attachment.filename)
+
+            _obj = get_obj(client.get_issue_file)(
+                { ':issue_id': '48361', ':file_id': str(attachment.id) })
+
+            file_content = base64.b64decode(_obj.files[0].content)
+            with open("{}/{}".format(dest, _obj.files[0].filename), "wb") as f:
+                f.write(file_content)
+
 def get_obj(api):
     def wrap(params=None):
         path = rest_api.fill_api_path(
@@ -181,7 +196,6 @@ if __name__ == '__main__':
 
     issue_obj = create_obj(client.create_issue)(data)
     print(issue_obj.issue.id)
-    """
 
     issue_obj = get_obj(client.get_issue)({ ':issue_id': '48361' })
     print(issue_obj.issues[0].summary)
@@ -198,3 +212,6 @@ if __name__ == '__main__':
     #client.upload_attachments(48361, ['log2'])
     note = client.create_note(48361, 'test', ['log2'])
     print(note.note.id)
+    """
+    #obj = get_obj(client.get_issue_files)({ ':issue_id': '48361' })
+    client.download_attachments(48361)
