@@ -3,6 +3,8 @@ import requests
 import urllib.parse
 
 import json
+import base64
+from pathlib import Path
 
 rest_api_list = rest_api.get_api_list()
 
@@ -55,8 +57,26 @@ class Client:
             headers = {**self.headers, **headers}
 
         r = requests.request(method, url, headers=headers, data=data)
+        if r.status_code != requests.codes.ok:
+            raise Exception('request failed %s' % r.status_code)
 
         return r.text
+
+    def upload_attachments(self, issue_id, file_paths):
+        files = []
+
+        for path in file_paths:
+            p = Path(path)
+            files.append({
+              "name": p.name,
+              "content": file2base64(path)
+            })
+
+        data = { "files": files }
+
+        create_obj(self.add_attachments)(
+            { ':issue_id': str(issue_id) },
+            data=data)
 
 def get_obj(api):
     def wrap(params=None):
@@ -72,14 +92,14 @@ def get_obj(api):
     return wrap
 
 def create_obj(api):
-    def wrap(params=None):
+    def wrap(params=None, data=None):
         path = rest_api.fill_api_path(
                     rest_api.get_api_path(api.__name__), params)
 
         url = urllib.parse.urljoin(client.url, path)
 
         h = { 'Content-Type': 'application/json' }
-        data = json.dumps(params)
+        data = json.dumps(data)
         r = client.request(url, method='POST', headers=h, data=data)
 
         if r is None or r == "":
@@ -102,6 +122,13 @@ def update_obj(api):
             return None
         return json.loads(r, object_hook=ObjectDict)
     return wrap
+
+def file2base64(filePath):
+    base64String = None
+    with open(filePath, 'rb') as f:
+        binary = f.read()
+        base64String = base64.b64encode(binary).decode()
+    return base64String
 
 if __name__ == '__main__':
     print(rest_api_list)
@@ -146,3 +173,5 @@ if __name__ == '__main__':
         ':issue_id': str(issue_obj.issues[0].id)
     }, data=_data)
     print(updated_issue_obj.issues[0].summary)
+
+    client.upload_attachments(48361, ['log2'])
