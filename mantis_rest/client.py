@@ -1,4 +1,4 @@
-import rest_api
+from mantis_rest import rest_api
 import requests
 import urllib.parse
 
