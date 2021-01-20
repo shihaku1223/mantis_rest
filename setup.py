@@ -9,7 +9,7 @@ install_requires = [
 
 setuptools.setup(
     name="mantis_rest",
-    version="0.0.5",
+    version="0.0.6",
     author="Shih-Po Wang",
     author_email="shihpo@gmail.com",
     description="The Python binding Mantis REST API",

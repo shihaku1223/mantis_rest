@@ -47,6 +47,7 @@ class Client:
         def impl(client, data):
             pass
 
+        setattr(impl, '__parent', self)
         impl.__name__ = name
         return impl
 
@@ -119,7 +120,7 @@ def get_obj(api):
         path = rest_api.fill_api_path(
                     rest_api.get_api_path(api.__name__), params)
 
-        url = urllib.parse.urljoin(client.url, path)
+        url = urllib.parse.urljoin(api.__parent.url, path)
         r = client.request(url)
 
         if r is None or r == "":
@@ -132,7 +133,7 @@ def create_obj(api):
         path = rest_api.fill_api_path(
                     rest_api.get_api_path(api.__name__), params)
 
-        url = urllib.parse.urljoin(client.url, path)
+        url = urllib.parse.urljoin(api.__parent.url, path)
 
         h = { 'Content-Type': 'application/json' }
         data = json.dumps(data)
@@ -147,7 +148,7 @@ def update_obj(api):
     def wrap(params=None, data=None):
         path = rest_api.fill_api_path(
                     rest_api.get_api_path(api.__name__), params)
-        url = urllib.parse.urljoin(client.url, path)
+        url = urllib.parse.urljoin(api.__parent.url, path)
 
         h = { 'Content-Type': 'application/json' }
         r = client.request(url, method='PATCH',
