@@ -47,7 +47,7 @@ class Client:
         def impl(client, data):
             pass
 
-        setattr(impl, '__parent', self)
+        setattr(impl, '__client', self)
         impl.__name__ = name
         return impl
 
@@ -120,8 +120,8 @@ def get_obj(api):
         path = rest_api.fill_api_path(
                     rest_api.get_api_path(api.__name__), params)
 
-        url = urllib.parse.urljoin(api.__parent.url, path)
-        r = client.request(url)
+        url = urllib.parse.urljoin(api.__client.url, path)
+        r = api.__client.request(url)
 
         if r is None or r == "":
             return None
@@ -133,11 +133,11 @@ def create_obj(api):
         path = rest_api.fill_api_path(
                     rest_api.get_api_path(api.__name__), params)
 
-        url = urllib.parse.urljoin(api.__parent.url, path)
+        url = urllib.parse.urljoin(api.__client.url, path)
 
         h = { 'Content-Type': 'application/json' }
         data = json.dumps(data)
-        r = client.request(url, method='POST', headers=h, data=data)
+        r = api.__client.request(url, method='POST', headers=h, data=data)
 
         if r is None or r == "":
             return None
@@ -148,10 +148,10 @@ def update_obj(api):
     def wrap(params=None, data=None):
         path = rest_api.fill_api_path(
                     rest_api.get_api_path(api.__name__), params)
-        url = urllib.parse.urljoin(api.__parent.url, path)
+        url = urllib.parse.urljoin(api.__client.url, path)
 
         h = { 'Content-Type': 'application/json' }
-        r = client.request(url, method='PATCH',
+        r = api.__client.request(url, method='PATCH',
                 headers=h,
                 data=json.dumps(data))
 
