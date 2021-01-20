@@ -1,4 +1,4 @@
-from mantis_rest import rest_api
+import rest_api
 import requests
 import urllib.parse
 
@@ -175,10 +175,9 @@ if __name__ == '__main__':
     """
     get_obj(client.get_issue)({ ':issue_id': '1234' })
     get_obj(client.get_issue_files)({ ':issue_id': '1234' })
-    get_obj(client.get_all_issues)({ ':page_size': '50', ':page': '1' })
-    get_obj(client.get_issues_project)({ ':project_id': '1' })
+    get_obj(client.get_all_issues)({ 'page_size': '50', 'page': '1' })
     get_obj(client.get_all_projects)()
-    get_obj(client.get_filter)({ ':filter_id': '11092' })
+    get_obj(client.get_filter)({ 'filter_id': '11092' })
     get_obj(client.user_info)()
     projects = get_obj(client.get_all_projects)().projects
     for p in projects:
@@ -195,7 +194,7 @@ if __name__ == '__main__':
         }
     }
 
-    issue_obj = create_obj(client.create_issue)(data)
+    issue_obj = create_obj(client.create_issue)(data=data)
     print(issue_obj.issue.id)
 
     issue_obj = get_obj(client.get_issue)({ ':issue_id': '48361' })
@@ -214,5 +213,14 @@ if __name__ == '__main__':
     note = client.create_note(48361, 'test', ['log2'])
     print(note.note.id)
     """
-    #obj = get_obj(client.get_issue_files)({ ':issue_id': '48361' })
+
+    obj = get_obj(client.get_all_issues)({
+        'project_id': '208',
+        'filter_id': '11092',
+        'page_size': '50',
+        'page': '2'
+    })
+    for issue in obj.issues:
+        print(issue.id)
+    print(len(obj.issues))
     client.download_attachments(48361)

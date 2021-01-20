@@ -1,8 +1,9 @@
 import inspect
 import requests
-import urllib.parse
 import sys
 import re
+import urllib.parse as urlparse
+from urllib.parse import urlencode
 
 from types import ModuleType
 
@@ -10,8 +11,8 @@ from types import ModuleType
 get_issue = 'api/rest/issues/:issue_id'
 get_issue_files = 'api/rest/issues/:issue_id/files'
 get_issue_file = 'api/rest/issues/:issue_id/files/:file_id'
-get_all_issues = 'api/rest/issues?page_size=:page_size&page=:page'
-get_issues_project = 'api/rest/issues?project_id=:project_id'
+
+get_all_issues = 'api/rest/issues'
 create_issue = 'api/rest/issues/'
 update_issue = 'api/rest/issues/:issue_id'
 add_attachments = 'api/rest/issues/:issue_id/files'
@@ -62,4 +63,14 @@ def fill_api_path(path, params):
     rep = dict((re.escape(k), v) for k, v in params.items())
     pattern = re.compile("|".join(rep.keys()))
 
-    return pattern.sub(lambda m: rep[re.escape(m.group(0))], path)
+    _path = pattern.sub(lambda m: rep[re.escape(m.group(0))], path)
+
+    _params = {k: v for k, v in params.items() if k[0] != ':'}
+    url_parts = list(urlparse.urlparse(_path))
+    query = dict(urlparse.parse_qsl(url_parts[4]))
+    query.update(_params)
+
+    url_parts[4] = urlencode(query)
+
+    return urlparse.urlunparse(url_parts)
+
