@@ -83,6 +83,18 @@ class Client:
 
         return note
 
+    def update_handler(self, issue_id, handler_name):
+
+        _data = {
+            "handler": {
+                "name": handler_name
+            }
+        }
+        updated_issue_obj = update_obj(self.update_issue)({
+            ':issue_id': str(issue_id)
+        }, data=_data)
+        return updated_issue_obj
+
     def upload_attachments(self, issue_id, file_paths):
         files = []
 
@@ -104,12 +116,12 @@ class Client:
 
         Path('{}'.format(dest)).mkdir(parents=True, exist_ok=True)
 
-        issue_obj = get_obj(client.get_issue)({ ':issue_id': '48361' })
+        issue_obj = get_obj(self.get_issue)({ ':issue_id': str(issue_id) })
         for attachment in issue_obj.issues[0].attachments:
             print('download ', attachment.id, attachment.filename)
 
-            _obj = get_obj(client.get_issue_file)(
-                { ':issue_id': '48361', ':file_id': str(attachment.id) })
+            _obj = get_obj(self.get_issue_file)(
+                { ':issue_id': str(issue_id), ':file_id': str(attachment.id) })
 
             file_content = base64.b64decode(_obj.files[0].content)
             with open("{}/{}".format(dest, _obj.files[0].filename), "wb") as f:
@@ -170,60 +182,3 @@ def file2base64(filePath):
 def get_custom_field(issue, field_name):
     return [field for field in issue.custom_fields if field['field']['name'] == field_name]
 
-if __name__ == '__main__':
-    print(rest_api_list)
-
-    client = Client('https://enosta.olympus.co.jp/mantis/ipf3/app/',
-            'token')
-    """
-    get_obj(client.get_issue)({ ':issue_id': '1234' })
-    get_obj(client.get_issue_files)({ ':issue_id': '1234' })
-    get_obj(client.get_all_issues)({ 'page_size': '50', 'page': '1' })
-    get_obj(client.get_all_projects)()
-    get_obj(client.get_filter)({ 'filter_id': '11092' })
-    get_obj(client.user_info)()
-    projects = get_obj(client.get_all_projects)().projects
-    for p in projects:
-        print(p.id, p.name, p.status.name, p.description)
-
-    data = {
-        "summary": "This is a test issue",
-        "description": "This is a test description",
-        "category": {
-            "name": "General"
-        },
-        "project": {
-            "name": "TEST"
-        }
-    }
-
-    issue_obj = create_obj(client.create_issue)(data=data)
-    print(issue_obj.issue.id)
-
-    issue_obj = get_obj(client.get_issue)({ ':issue_id': '48361' })
-    print(issue_obj.issues[0].summary)
-    issue_obj.issues[0].summary = "This is a test issue summary updated"
-
-    _data = {
-        "summary": "This is a test issue summary updated updated",
-    }
-    updated_issue_obj = update_obj(client.update_issue)({
-        ':issue_id': str(issue_obj.issues[0].id)
-    }, data=_data)
-    print(updated_issue_obj.issues[0].summary)
-
-    #client.upload_attachments(48361, ['log2'])
-    note = client.create_note(48361, 'test', ['log2'])
-    print(note.note.id)
-
-    obj = get_obj(client.get_all_issues)({
-        'project_id': '208',
-        'filter_id': '11092',
-        'page_size': '50',
-        'page': '2'
-    })
-    for issue in obj.issues:
-        print(issue.id)
-    print(len(obj.issues))
-    client.download_attachments(48361)
-    """
