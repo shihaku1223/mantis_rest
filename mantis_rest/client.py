@@ -167,6 +167,9 @@ def file2base64(filePath):
         base64String = base64.b64encode(binary).decode()
     return base64String
 
+def get_custom_field(issue, field_name):
+    return [field for field in issue.custom_fields if field['field']['name'] == field_name]
+
 if __name__ == '__main__':
     print(rest_api_list)
 
@@ -212,7 +215,6 @@ if __name__ == '__main__':
     #client.upload_attachments(48361, ['log2'])
     note = client.create_note(48361, 'test', ['log2'])
     print(note.note.id)
-    """
 
     obj = get_obj(client.get_all_issues)({
         'project_id': '208',
@@ -224,3 +226,4 @@ if __name__ == '__main__':
         print(issue.id)
     print(len(obj.issues))
     client.download_attachments(48361)
+    """
