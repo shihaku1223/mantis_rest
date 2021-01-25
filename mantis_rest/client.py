@@ -62,7 +62,7 @@ class Client:
 
         return r.text
 
-    def create_note(self, issue_id, text, file_paths=None):
+    def create_note(self, issue_id, text, file_paths=[]):
 
         data = {
             "text": text,
