@@ -112,8 +112,20 @@ class Client:
             { ':issue_id': str(issue_id) },
             data=data)
 
-    def download_attachments(self, issue_id, dest='.'):
+    def download_attachment(self, issue_id, attachment_id, dest='.'):
 
+        _obj = get_obj(self.get_issue_file)(
+            { ':issue_id': str(issue_id), ':file_id': str(attachment_id) })
+
+        print('download {} to {}'.format(attachment_id, dest))
+
+        Path('{}'.format("{}".format(dest))).mkdir(parents=True, exist_ok=True)
+        file_content = base64.b64decode(_obj.files[0].content)
+        with open("{}/{}".format(dest,
+            _obj.files[0].filename), "wb") as f:
+            f.write(file_content)
+
+    def download_attachments(self, issue_id, dest='.'):
 
         issue_obj = get_obj(self.get_issue)({ ':issue_id': str(issue_id) })
         for attachment in issue_obj.issues[0].attachments:
