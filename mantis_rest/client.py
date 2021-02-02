@@ -114,7 +114,6 @@ class Client:
 
     def download_attachments(self, issue_id, dest='.'):
 
-        Path('{}'.format(dest)).mkdir(parents=True, exist_ok=True)
 
         issue_obj = get_obj(self.get_issue)({ ':issue_id': str(issue_id) })
         for attachment in issue_obj.issues[0].attachments:
@@ -123,8 +122,11 @@ class Client:
             _obj = get_obj(self.get_issue_file)(
                 { ':issue_id': str(issue_id), ':file_id': str(attachment.id) })
 
+            Path('{}'.format("{}/{}".format(dest, attachment.id))).mkdir(parents=True, exist_ok=True)
             file_content = base64.b64decode(_obj.files[0].content)
-            with open("{}/{}".format(dest, _obj.files[0].filename), "wb") as f:
+            with open("{}/{}/{}".format(dest,
+                attachment.id,
+                _obj.files[0].filename), "wb") as f:
                 f.write(file_content)
 
 def get_obj(api):
